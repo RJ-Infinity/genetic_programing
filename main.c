@@ -92,7 +92,67 @@ void* dumpFileMalloc(FILE* fptr){
 	return fc;
 }
 
+#define CELL_SIZE 10
+#define CHANNEL_NUM 4
+#define VECTOR2(world, x, y) (((world).width * CELL_SIZE * y) + x)
+
+_Static_assert(CHANNEL_NUM == 4, "Colour expects 4 channels");
+
+typedef union {
+	struct {
+		uint8_t r;
+		uint8_t g;
+		uint8_t b;
+		uint8_t a;
+	};
+	uint32_t n;
+} Colour;
+
+
+void renderWorldToImage(char const *filename, World world){
+	Colour* data = malloc(world.width * CELL_SIZE * world.height * CELL_SIZE * sizeof data[0]);
+
+	for (size_t i = 0; i < world.creatureCount; i++) {
+		for (
+			size_t y = CELL_SIZE * world.creatures[i]->y;
+			y < (size_t)CELL_SIZE * (world.creatures[i]->y + 1);
+			y++
+		) {for (
+			size_t x = CELL_SIZE * world.creatures[i]->x;
+			x < (size_t)CELL_SIZE * (world.creatures[i]->x + 1);
+			x++
+		) { data[VECTOR2(world, x, y)] = (Colour){.r=255, .g=0, .b=0, .a=255,}; }}
+	}
+
+
+	stbi_write_png(filename, world.width * CELL_SIZE, world.height * CELL_SIZE, CHANNEL_NUM, data, world.width * CELL_SIZE * CHANNEL_NUM);
+}
+
 int main(int argc, char** argv){
+	assert(argc == 2);
+	World w = {
+		.width = 15,
+		.height = 19,
+		.creatureCount = 2,
+	};
+
+	w.creatures = malloc(sizeof(w.creatures[0])*2);
+
+	w.creatures[0] = &(Creature){
+		.x=2,
+		.y=4,
+		.health=6,
+		.food=8,
+	};
+	w.creatures[1] = &(Creature){
+		.x=10,
+		.y=12,
+		.health=14,
+		.food=15,
+	};
+
+	printf("%s", argv[1]);
+	renderWorldToImage(argv[1], w);
 
 	return 0;
 }
