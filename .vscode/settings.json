@@ -1,0 +1,10 @@
+{
+	"files.associations": {
+		"*.hta": "html",
+		"*.pgmn": "json",
+		"*.rc": "cpp",
+		"*.jsm": "javascript",
+		"assert.h": "c",
+		"rjlist.h": "c"
+	}
+}
